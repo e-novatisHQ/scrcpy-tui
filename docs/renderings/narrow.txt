@@ -1,0 +1,12 @@
+scrcpy-tui · Prêt à lancer · Entrée
+Cible : 192.0.2.10:6201 · Léger Wi-Fi
+
+/ rechercher · ? aide
+Appareils [focus]
+Sélection 1/42 · visibles 1–1/42
+> 192.0.2.10:6201
+Presets
+> Léger Wi-Fi
+Commande : scrcpy -s 192.0.2.10:6201 …
+Tab liste · Entrée lancer
+r / c l n e d · ? · q quitter

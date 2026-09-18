@@ -1,0 +1,22 @@
+scrcpy-tui · Prêt à lancer · Entrée
+Cible : 192.0.2.10:6201 · Léger Wi-Fi
+
+/ rechercher · ? aide
+Appareils [focus]                                               │ Presets
+Sélection 1/42 · visibles 1–12/42                               │ > Léger Wi-Fi
+> 192.0.2.10:6201           Dongle G 4K                         │ 800p · 2 Mbit/s · 30 FPS
+  192.0.2.10:6202           Dongle G 4K                         │ sans audio
+  192.0.2.10:6203           Dongle G 4K                         │   Très léger
+  192.0.2.10:6204           Dongle G 4K                         │   Qualité
+  192.0.2.10:6205           Dongle G 4K                         │
+  192.0.2.10:6206           Dongle G 4K                         │
+  192.0.2.10:6207           Dongle G 4K                         │
+  192.0.2.10:6208           Dongle G 4K                         │
+  192.0.2.10:6209           Dongle G 4K                         │
+  192.0.2.10:6210           Dongle G 4K                         │
+  192.0.2.10:6211           Dongle G 4K                         │
+  192.0.2.10:6212           Dongle G 4K                         │
+Commande : scrcpy -s 192.0.2.10:6201 -m 800 -b 2M --max-fps=30 --video-codec=h264 --no-audio
+Tab liste · Entrée lancer
+r actualiser · / chercher · c commande · l logs · ? aide · q quitter
+Presets : n créer · e modifier · d supprimer

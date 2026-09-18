@@ -1,0 +1,47 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: .go-version
+          cache: true
+      - name: Validate tag and branch ancestry
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          test "$RELEASE_TAG" = "v$(cat VERSION)"
+          git merge-base --is-ancestor HEAD origin/main
+      - name: Full quality gates and vulnerability scan
+        run: make tools check vuln
+      - name: Build archives
+        run: make notices release
+      - name: Verify and smoke-test amd64 archive
+        run: |
+          cd dist
+          sha256sum --check SHA256SUMS
+          mkdir smoke
+          tar -xzf "scrcpy-tui_$(cat ../VERSION)_linux_amd64.tar.gz" -C smoke
+          test "$(smoke/scrcpy-tui --version)" = "$(cat ../VERSION)"
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/SHA256SUMS --verify-tag --draft --generate-notes --title "$RELEASE_TAG"

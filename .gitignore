@@ -1,0 +1,16 @@
+/bin/
+/dist/
+/coverage.out
+/.tools/
+/.cache/
+/.agents/
+/.codex/
+/tui.contract.json
+/docs/audit-final.md
+/docs/jalons.md
+/docs/publication-preflight.md
+__pycache__/
+*.py[cod]
+*.recovery-*
+.env
+.env.*
