@@ -22,13 +22,16 @@ operational steps, not claims that a local file can enforce remote protections.
 ## Releases
 
 1. Run `make tools`, `make check`, `make vuln`, and review dependency notices.
-2. Update `VERSION` and CHANGELOG.md. Commit the reviewed change through a PR.
+2. Update `VERSION` and move the curated `Unreleased` entries into a dated section
+   in CHANGELOG.md. Commit the reviewed change through a PR.
 3. Wait for all main-branch CI checks, including native Linux arm64.
 4. Run `make notices release`, verify `dist/SHA256SUMS`, and smoke-test extracted
    archives. Only binaries built on a maintained Go toolchain are release candidates.
 5. Tag the reviewed commit as `v<contents of VERSION>` and push the tag explicitly.
 6. The tag workflow verifies the version/ancestry, reruns quality gates and creates
-   a **draft** release. Review its assets and release notes before publishing.
+   a **draft** release. It prepends the curated version section from CHANGELOG.md,
+   then GitHub automatically adds categorized merged PRs using `.github/release.yml`.
+   Review its assets and generated notes before publishing.
 
 The archives contain the executable, MIT license, README and exact third-party
 license notices. They do not contain user configuration, private audit notes,
@@ -38,6 +41,11 @@ Use SemVer. Releases before 1.0 can change public interfaces in a minor version;
 record incompatible changes. Never retag a published version. A correction is a new
 version. Older binaries can be reinstalled without changing a profile, unless a
 future documented migration changes that contract.
+
+Apply `breaking-change`, `enhancement`, `bug`, `security`, `dependencies`, or
+`documentation` labels to merged PRs. Unmatched PRs appear under Other changes;
+`skip-changelog` excludes maintenance noise. Generated GitHub notes are the detailed
+change log, while CHANGELOG.md remains a short curated account of released behavior.
 
 ## Dependency and tooling updates
 
