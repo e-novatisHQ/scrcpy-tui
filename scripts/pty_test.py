@@ -31,6 +31,12 @@ with tempfile.TemporaryDirectory() as root:
                 if ready:
                     try:output+=os.read(master,65536)
                     except OSError:break
+        def wait_until(predicate, message, seconds=3):
+            deadline=time.monotonic()+seconds
+            while time.monotonic()<deadline:
+                read(.1)
+                if predicate():return
+            raise AssertionError(message)
         read(1)
         assert b'USB' in output,output
         if finish=='q':
@@ -38,8 +44,8 @@ with tempfile.TemporaryDirectory() as root:
             assert (root/'launched').exists(),'scrcpy not launched'
             args=(root/'launched').read_text().splitlines();assert args[:2]==['-s','USB'],args
             assert '--max-fps=25' in args,args
-            os.write(master,b'n');read(.2);os.write(master,b'Perso\tDescription\t--no-audio\r');read(.4)
-            assert 'Perso' in (root/'presets.json').read_text()
+            os.write(master,b'n');read(.2);os.write(master,b'Perso\tDescription\t--no-audio\r')
+            wait_until(lambda:(root/'presets.json').exists() and 'Perso' in (root/'presets.json').read_text(),'preset not persisted')
             os.write(master,b'dn');read(.2)
             assert 'Perso' in (root/'presets.json').read_text()
             os.write(master,b'c');read(.2);assert b'Commande exacte' in output
