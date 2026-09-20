@@ -35,10 +35,10 @@ After a release is published, download the Linux archive matching your CPU from
 `SHA256SUMS`. Verify the archive before extracting it:
 
 ```sh
-# Example for VERSION 0.3.0; choose linux_arm64 for arm64.
+# Example for VERSION 0.3.1; choose linux_arm64 for arm64.
 sha256sum --ignore-missing --check SHA256SUMS
 mkdir scrcpy-tui-release
-tar -xzf scrcpy-tui_0.3.0_linux_amd64.tar.gz -C scrcpy-tui-release
+tar -xzf scrcpy-tui_0.3.1_linux_amd64.tar.gz -C scrcpy-tui-release
 install -Dm755 scrcpy-tui-release/scrcpy-tui "$HOME/.local/bin/scrcpy-tui"
 scrcpy-tui
 ```

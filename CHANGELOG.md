@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.1 — 2026-09-20
+
 - Add CodeQL analysis, a coverage floor, grouped dependency updates and CODEOWNERS.
 - Generate CycloneDX SBOMs and signed provenance attestations for release assets.
 - Verify release reproducibility in CI and generate dependency notices at release time.
