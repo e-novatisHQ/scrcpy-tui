@@ -53,7 +53,7 @@ La configuration est un JSON éditable pour gérer les presets sans TUI. `previe
 
 ## Compilation et validation
 
-Go à la version de `.go-version` pour construire une release (minimum source : Go 1.25.0). Les versions de dépendances sont verrouillées dans go.mod/go.sum.
+Go à la version de `.go-version` pour construire une release (minimum source : Go 1.26.0). Les versions de dépendances sont verrouillées dans go.mod/go.sum.
 
 ```bash
 make build
