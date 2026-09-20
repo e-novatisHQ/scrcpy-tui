@@ -13,6 +13,8 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -31,7 +33,14 @@ jobs:
       - name: Full quality gates and vulnerability scan
         run: make tools check vuln
       - name: Build archives
-        run: make notices release
+        run: make notices sbom release
+      - name: Verify reproducible archives
+        run: |
+          GOTOOLCHAIN="go$(cat .go-version)" python3 scripts/release.py \
+            --version "$(cat VERSION)" --output dist-repro
+          for archive in dist/*.tar.gz; do
+            cmp "$archive" "dist-repro/$(basename "$archive")"
+          done
       - name: Verify and smoke-test amd64 archive
         run: |
           cd dist
@@ -39,6 +48,13 @@ jobs:
           mkdir smoke
           tar -xzf "scrcpy-tui_$(cat ../VERSION)_linux_amd64.tar.gz" -C smoke
           test "$(smoke/scrcpy-tui --version)" = "$(cat ../VERSION)"
+      - name: Attest release artifacts
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: |
+            dist/*.tar.gz
+            dist/*.cdx.json
+            dist/SHA256SUMS
       - name: Create draft release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -51,6 +67,6 @@ jobs:
             found { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
-          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/SHA256SUMS \
+          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.cdx.json dist/SHA256SUMS \
             --verify-tag --draft --generate-notes --notes-file release-notes.md \
             --title "$RELEASE_TAG"

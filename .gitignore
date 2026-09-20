@@ -1,6 +1,7 @@
 /bin/
 /dist/
 /coverage.out
+/THIRD_PARTY_NOTICES.md
 /.tools/
 /.cache/
 /.agents/
