@@ -19,8 +19,8 @@ The interface is currently in French. [Guide en français](docs/usage.fr.md).
 
 **Linux** with adb and scrcpy installed in `PATH`. The build does not bundle these
 external tools or install anything when launched. For Wi-Fi, connect your device
-through adb first. Native amd64 is tested locally; native arm64 is configured in
-CI and remains pending until the public CI has run. macOS and Windows are not
+through adb first. Native amd64 and arm64 are tested in CI; amd64 is also tested
+locally. macOS and Windows are not
 supported in this release. No graphical/video qualification is claimed by fake-tool tests.
 
 ## Install

@@ -1,6 +1,6 @@
 # scrcpy-tui
 
-Lanceur scrcpy en français, livré en exécutable Go autonome pour **Linux amd64**. Les builds Linux arm64 sont disponibles par `make release` mais ne sont pas qualifiés sur une machine arm64. ADB et scrcpy doivent être installés et accessibles dans `PATH`. Aucun téléchargement au lancement. Wi-Fi : l'appareil doit déjà être connecté à ADB ; le lanceur ne configure pas son réseau.
+Lanceur scrcpy en français, livré en exécutable Go autonome pour **Linux amd64 et arm64**. Les deux architectures sont testées nativement par la CI GitHub. ADB et scrcpy doivent être installés et accessibles dans `PATH`. Aucun téléchargement au lancement. Wi-Fi : l'appareil doit déjà être connecté à ADB ; le lanceur ne configure pas son réseau.
 
 ```bash
 ./bin/scrcpy-tui
@@ -66,4 +66,4 @@ make notices
 make fixtures
 ```
 
-`bin/scrcpy-tui` est le binaire local. `dist/` contient les deux architectures et SHA256SUMS. Pour installer : copier le binaire compatible vers `~/.local/bin/scrcpy-tui`. Les tests utilisent des profils temporaires et des outils factices. Les tests PTY qualifient le clavier, la persistance, les erreurs CLI et la restauration du terminal ; le fonctionnement nominal a été confirmé par l’utilisateur le 18 septembre 2026. Cette confirmation ne qualifie pas l’exécution sur arm64.
+`bin/scrcpy-tui` est le binaire local. `dist/` contient les deux architectures et SHA256SUMS. Pour installer : copier le binaire compatible vers `~/.local/bin/scrcpy-tui`. Les tests utilisent des profils temporaires et des outils factices. Les tests PTY qualifient le clavier, la persistance, les erreurs CLI et la restauration du terminal ; le fonctionnement nominal a été confirmé par l’utilisateur le 18 septembre 2026. La CI exécute ces tests sur des hôtes Linux amd64 et arm64.
