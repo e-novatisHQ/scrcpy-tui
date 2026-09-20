@@ -44,4 +44,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/SHA256SUMS --verify-tag --draft --generate-notes --title "$RELEASE_TAG"
+          version="$(cat VERSION)"
+          awk -v version="$version" '
+            index($0, "## " version " ") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          test -s release-notes.md
+          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/SHA256SUMS \
+            --verify-tag --draft --generate-notes --notes-file release-notes.md \
+            --title "$RELEASE_TAG"

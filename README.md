@@ -38,7 +38,7 @@ install -Dm755 scrcpy-tui-release/scrcpy-tui "$HOME/.local/bin/scrcpy-tui"
 scrcpy-tui
 ```
 
-No binary release has been published yet. To build from a local checkout:
+To build from a local checkout:
 
 ```sh
 make build
