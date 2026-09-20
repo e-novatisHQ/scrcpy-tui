@@ -28,6 +28,8 @@ Before sending a PR:
 - Run `make fmt` and `make check`.
 - Update documentation and the Unreleased changelog when behavior changes.
 - Avoid credentials, real device serials, private addresses, or personal paths.
+- Give the PR a concise user-facing title and apply the matching changelog label;
+  use `skip-changelog` only for changes with no release-note value.
 
 A PR should describe the trigger, resulting behavior, validation, and limitations.
 Changes are reviewed before merging. Dependencies and workflow changes receive
@@ -37,3 +39,5 @@ explicit review. No CLA is required; contributions are submitted under MIT.
 
 See [the maintainer guide](docs/maintaining.md). Versioning follows SemVer;
 pre-1.0 releases may change interfaces in a minor release, documented in the changelog.
+GitHub generates categorized release notes from merged PR titles and labels using
+`.github/release.yml`; `CHANGELOG.md` keeps the curated, durable release history.

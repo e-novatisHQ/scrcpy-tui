@@ -2,11 +2,10 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-09-20
+
 - Update Bubbles to 1.0.0, x/ansi to 0.11.8, go-shellwords to 1.0.15 and
   x/term to 0.46.0; the minimum Go version is now 1.26.
-
-## 0.3.0 — prepared
-
 - Public Go module and testable CLI shared with a small executable entrypoint.
 - Automated formatting, race tests, vet, static analysis and vulnerability checks.
 - Isolated PTY integration tests, Linux release archives and checksum verification.
