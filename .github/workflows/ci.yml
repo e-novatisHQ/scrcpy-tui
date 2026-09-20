@@ -23,7 +23,7 @@ jobs:
           go-version-file: .go-version
           cache: true
       - name: Install pinned development tools
-        run: make tools
+        run: make tools-quality
       - name: Format, vet, tests, static analysis, workflows and PTY
         run: make check
       - name: Module checksums and tidy consistency
@@ -34,7 +34,8 @@ jobs:
       - name: Dependency notices and fixture consistency
         run: |
           make notices fixtures
-          git diff --exit-code -- THIRD_PARTY_NOTICES.md docs/renderings
+          test -s THIRD_PARTY_NOTICES.md
+          git diff --exit-code -- docs/renderings
       - name: Whitespace
         run: git diff --check
       - name: Coverage report
@@ -55,7 +56,7 @@ jobs:
         with:
           go-version-file: .go-version
           cache: true
-      - run: make tools vuln
+      - run: make tools-vuln vuln
   linux:
     name: linux-${{ matrix.arch }}
     strategy:

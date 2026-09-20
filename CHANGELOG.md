@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add CodeQL analysis, a coverage floor, grouped dependency updates and CODEOWNERS.
+- Generate CycloneDX SBOMs and signed provenance attestations for release assets.
+- Verify release reproducibility in CI and generate dependency notices at release time.
+- Add support, conduct, roadmap and real-device qualification documentation.
+
 ## 0.3.0 — 2026-09-20
 
 - Update Bubbles to 1.0.0, x/ansi to 0.11.8, go-shellwords to 1.0.15 and

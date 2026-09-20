@@ -1,5 +1,10 @@
 # scrcpy-tui
 
+[![CI](https://github.com/e-novatisHQ/scrcpy-tui/actions/workflows/ci.yml/badge.svg)](https://github.com/e-novatisHQ/scrcpy-tui/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/e-novatisHQ/scrcpy-tui/actions/workflows/codeql.yml/badge.svg)](https://github.com/e-novatisHQ/scrcpy-tui/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/e-novatisHQ/scrcpy-tui)](https://github.com/e-novatisHQ/scrcpy-tui/releases/latest)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A fast terminal launcher for [scrcpy](https://github.com/Genymobile/scrcpy): choose
 an ADB device, choose a preset, inspect the command and press Enter.
 
@@ -36,6 +41,14 @@ mkdir scrcpy-tui-release
 tar -xzf scrcpy-tui_0.3.0_linux_amd64.tar.gz -C scrcpy-tui-release
 install -Dm755 scrcpy-tui-release/scrcpy-tui "$HOME/.local/bin/scrcpy-tui"
 scrcpy-tui
+```
+
+Release assets also include a CycloneDX SBOM. Starting with the next release,
+GitHub signs build-provenance attestations that can be checked with:
+
+```sh
+gh attestation verify scrcpy-tui_VERSION_linux_amd64.tar.gz \
+  --repo e-novatisHQ/scrcpy-tui
 ```
 
 To build from a local checkout:
@@ -102,18 +115,20 @@ in presets. Options passed to scrcpy keep their own effects.
 make tools          # Explicitly install pinned tools under .tools/
 make check          # Format, vet, race tests, staticcheck, actionlint, PTY tests
 make vuln           # govulncheck; needs access to the public vulnerability DB
-make notices        # Regenerate exact dependency license notices
+make notices        # Generate exact dependency license notices for an archive
+make sbom           # Generate a deterministic CycloneDX SBOM
 make fixtures       # Synthetic text renderings
 make release        # Linux amd64/arm64 archives and SHA256SUMS
 ```
 
 GNU Make, Python 3.11+ and a C compiler are needed for the complete validation.
 Tests use temporary profiles and fake devices. See [CONTRIBUTING](CONTRIBUTING.md),
-[architecture](docs/architecture.md), [maintaining](docs/maintaining.md), and
-[security](SECURITY.md). Releases are tagged, quality-gated and created as drafts.
+[architecture](docs/architecture.md), [roadmap](ROADMAP.md),
+[support](SUPPORT.md), [maintaining](docs/maintaining.md), and [security](SECURITY.md).
+Releases are tagged, quality-gated and created as drafts.
 
 ## License
 
 [MIT](LICENSE), © e-novatisHQ and contributors. Dependencies retain their own
-licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). scrcpy-tui is an
-independent project, not affiliated with Genymobile or Google.
+licenses; exact third-party notices are included in every release archive.
+scrcpy-tui is an independent project, not affiliated with Genymobile or Google.

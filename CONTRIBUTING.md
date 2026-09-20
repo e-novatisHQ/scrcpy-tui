@@ -27,6 +27,8 @@ Before sending a PR:
 - Use temporary profiles and fake tools; never test against a contributor's devices.
 - Run `make fmt` and `make check`.
 - Update documentation and the Unreleased changelog when behavior changes.
+- Regenerate fixtures when rendering changes. Dependency notices are generated at
+  release time and must not be committed.
 - Avoid credentials, real device serials, private addresses, or personal paths.
 - Give the PR a concise user-facing title and apply the matching changelog label;
   use `skip-changelog` only for changes with no release-note value.
@@ -34,6 +36,7 @@ Before sending a PR:
 A PR should describe the trigger, resulting behavior, validation, and limitations.
 Changes are reviewed before merging. Dependencies and workflow changes receive
 explicit review. No CLA is required; contributions are submitted under MIT.
+Participation follows [the code of conduct](CODE_OF_CONDUCT.md).
 
 ## Release process
 

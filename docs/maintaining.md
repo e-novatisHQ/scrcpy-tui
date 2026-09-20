@@ -21,20 +21,25 @@ operational steps, not claims that a local file can enforce remote protections.
 
 ## Releases
 
-1. Run `make tools`, `make check`, `make vuln`, and review dependency notices.
+1. Run `make tools`, `make check`, `make vuln`, `make notices`, and review the
+   generated dependency notices.
 2. Update `VERSION` and move the curated `Unreleased` entries into a dated section
    in CHANGELOG.md. Commit the reviewed change through a PR.
 3. Wait for all main-branch CI checks, including native Linux arm64.
-4. Run `make notices release`, verify `dist/SHA256SUMS`, and smoke-test extracted
-   archives. Only binaries built on a maintained Go toolchain are release candidates.
+4. Run `make notices sbom release`, verify `dist/SHA256SUMS`, and smoke-test
+   extracted archives. Only binaries built on a maintained Go toolchain are release
+   candidates.
 5. Tag the reviewed commit as `v<contents of VERSION>` and push the tag explicitly.
 6. The tag workflow verifies the version/ancestry, reruns quality gates and creates
    a **draft** release. It prepends the curated version section from CHANGELOG.md,
    then GitHub automatically adds categorized merged PRs using `.github/release.yml`.
    Review its assets and generated notes before publishing.
 
-The archives contain the executable, MIT license, README and exact third-party
-license notices. They do not contain user configuration, private audit notes,
+The archives contain the executable, MIT license, README and generated third-party
+license notices. Release assets also include a CycloneDX SBOM. GitHub Actions
+attests the archives, checksum file and SBOM through Sigstore; consumers can run
+`gh attestation verify <asset> --repo e-novatisHQ/scrcpy-tui`. They do not contain
+user configuration, private audit notes,
 dev tools, screenshots of real devices, or adb/scrcpy binaries.
 
 Use SemVer. Releases before 1.0 can change public interfaces in a minor version;
@@ -52,6 +57,9 @@ change log, while CHANGELOG.md remains a short curated account of released behav
 Dependabot covers Go modules and pinned action SHAs. The Makefile separately pins
 staticcheck, govulncheck and actionlint: review and bump these explicitly. `.go-version`
 is the release/CI toolchain; go.mod is the minimum source language requirement.
+Dependabot groups Go updates so coupled libraries are qualified together. Exact
+notices are generated in CI and at release time instead of being committed, which
+allows dependency PRs to satisfy required checks without stale generated content.
 After updates run `go mod tidy`, `make notices`, `make fixtures`, `make check`, and
 `make vuln`. Review license changes and module checksum changes before merging.
 
