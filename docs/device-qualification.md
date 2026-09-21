@@ -20,3 +20,7 @@ Exercise at least:
 
 Store only sanitized logs. A successful fake-tool CI run is not evidence of video,
 audio, input forwarding or compatibility with a specific Android device.
+
+Recorded qualifications:
+
+- [Strong Dongle G 4K — v0.3.1](qualifications/strong-dongle-g-4k-v0.3.1.md)
