@@ -23,4 +23,5 @@ audio, input forwarding or compatibility with a specific Android device.
 
 Recorded qualifications:
 
-- [Strong Dongle G 4K — v0.3.1](qualifications/strong-dongle-g-4k-v0.3.1.md)
+- [Homatics Dongle G 4K — v0.3.1](qualifications/homatics-dongle-g-4k-v0.3.1.md)
+- [Pixel 6 and Xiaomi MiTV-MOOR2 — v0.3.1](qualifications/pixel6-xiaomi-mitv-v0.3.1.md)

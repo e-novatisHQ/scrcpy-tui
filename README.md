@@ -43,8 +43,8 @@ install -Dm755 scrcpy-tui-release/scrcpy-tui "$HOME/.local/bin/scrcpy-tui"
 scrcpy-tui
 ```
 
-Release assets also include a CycloneDX SBOM. Starting with the next release,
-GitHub signs build-provenance attestations that can be checked with:
+Release assets also include a CycloneDX SBOM. Since v0.3.1, GitHub signs
+build-provenance attestations that can be checked with:
 
 ```sh
 gh attestation verify scrcpy-tui_VERSION_linux_amd64.tar.gz \
