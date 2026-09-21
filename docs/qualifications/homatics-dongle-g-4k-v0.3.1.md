@@ -1,9 +1,10 @@
-# Strong Dongle G 4K — scrcpy-tui v0.3.1
+# Homatics Dongle G 4K — scrcpy-tui v0.3.1
 
-Qualification performed on 2026-09-21. The operator identified the target as a
-Strong dongle. Android reports the underlying platform as `Homatics Dongle G 4K`
-by `SEI Robotics`; this distinction is retained to make the evidence auditable.
-ADB addresses and device serials are intentionally omitted.
+Qualification performed on 2026-09-21. The target was initially described as a
+Strong dongle, but Android identifies it as `Homatics Dongle G 4K` by
+`SEI Robotics`. A separate connected device reports the Strong brand. This
+record is therefore attributed to Homatics; the Strong-branded device was not
+qualified in this run. ADB addresses and device serials are omitted.
 
 ## Environment
 
@@ -63,4 +64,4 @@ The following claims require separate evidence and are not made by this run:
 - audio forwarding quality;
 - manual validation of keyboard, pointer or remote-control input forwarding;
 - long-duration stability, latency or thermal behavior;
-- other Strong or SEI firmware versions.
+- other Homatics or SEI firmware versions, and the separate Strong-branded device.
