@@ -25,3 +25,5 @@ Recorded qualifications:
 
 - [Homatics Dongle G 4K — v0.3.1](qualifications/homatics-dongle-g-4k-v0.3.1.md)
 - [Pixel 6 and Xiaomi MiTV-MOOR2 — v0.3.1](qualifications/pixel6-xiaomi-mitv-v0.3.1.md)
+- [Strong UHD Google TV Stick — v0.3.1](qualifications/strong-uhd-google-tv-stick-v0.3.1.md)
+- [Xiaomi Mi A3 — v0.3.1](qualifications/xiaomi-mi-a3-v0.3.1.md)
