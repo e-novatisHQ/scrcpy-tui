@@ -36,7 +36,10 @@ Download the `.deb` matching your CPU from
 [GitHub Releases](https://github.com/e-novatisHQ/scrcpy-tui/releases). Open it from
 your file manager and confirm the installation in the system software installer.
 The package installs `scrcpy-tui` in `/usr/bin`, so the command is immediately
-available in every terminal. It also declares `adb` and `scrcpy` as dependencies.
+available in every terminal. It installs `adb` as a package dependency. Install a
+compatible scrcpy release separately and ensure that `scrcpy` is in `PATH`; distro
+packages may lag behind upstream releases. The launcher reports a clear error if
+scrcpy is unavailable.
 
 ### Other Linux distributions
 

@@ -39,9 +39,10 @@ Release hosts need `dpkg-deb` in addition to the development prerequisites.
 
 The archives and Debian packages contain the executable, MIT license, README and
 generated third-party license notices. Debian packages install the executable under
-`/usr/bin` and declare adb and scrcpy as dependencies. Release assets also include a
-CycloneDX SBOM. GitHub Actions attests the archives, packages, checksum file and SBOM
-through Sigstore; consumers can run
+`/usr/bin`, depend on adb and only suggest scrcpy so that unavailable or obsolete
+distro packages do not block installation. Release assets also include a CycloneDX
+SBOM. GitHub Actions attests the archives, packages, checksum file and SBOM through
+Sigstore; consumers can run
 `gh attestation verify <asset> --repo e-novatisHQ/scrcpy-tui`. They do not contain
 user configuration, private audit notes,
 dev tools, screenshots of real devices, or adb/scrcpy binaries.

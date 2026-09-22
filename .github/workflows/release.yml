@@ -48,8 +48,11 @@ jobs:
           mkdir smoke
           tar -xzf "scrcpy-tui_$(cat ../VERSION)_linux_amd64.tar.gz" -C smoke
           test "$(smoke/scrcpy-tui --version)" = "$(cat ../VERSION)"
-          dpkg-deb --info "scrcpy-tui_$(cat ../VERSION)_linux_amd64.deb"
-          dpkg-deb --extract "scrcpy-tui_$(cat ../VERSION)_linux_amd64.deb" deb-smoke
+          package="scrcpy-tui_$(cat ../VERSION)_linux_amd64.deb"
+          dpkg-deb --info "$package"
+          test "$(dpkg-deb --field "$package" Depends)" = "adb"
+          test "$(dpkg-deb --field "$package" Suggests)" = "scrcpy"
+          dpkg-deb --extract "$package" deb-smoke
           test "$(deb-smoke/usr/bin/scrcpy-tui --version)" = "$(cat ../VERSION)"
       - name: Attest release artifacts
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
