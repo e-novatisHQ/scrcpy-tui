@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Linux release archives with deterministic metadata and SHA-256 hashes."""
+"""Build deterministic Linux archives, Debian packages and SHA-256 hashes."""
 import argparse
 import gzip
 import hashlib
@@ -13,6 +13,64 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parent.parent
 
+
+def add_checksum(path, checksums):
+    with path.open("rb") as content:
+        digest = hashlib.file_digest(content, "sha256").hexdigest()
+    checksums.append(f"{digest}  {path.name}\n")
+
+
+def build_deb(binary, version, arch, output, temporary):
+    package_root = temporary / f"deb_{arch}"
+    control = package_root / "DEBIAN"
+    executable_directory = package_root / "usr/bin"
+    documentation = package_root / "usr/share/doc/scrcpy-tui"
+    control.mkdir(parents=True)
+    executable_directory.mkdir(parents=True)
+    documentation.mkdir(parents=True)
+
+    debian_version = version.replace("-", "~", 1)
+    (control / "control").write_text(
+        "\n".join([
+            "Package: scrcpy-tui",
+            f"Version: {debian_version}",
+            "Section: utils",
+            "Priority: optional",
+            f"Architecture: {arch}",
+            "Maintainer: e-novatisHQ <contact@e-novatis.com>",
+            "Depends: adb",
+            "Suggests: scrcpy",
+            "Homepage: https://github.com/e-novatisHQ/scrcpy-tui",
+            "Description: terminal launcher for scrcpy",
+            " Select an ADB device and a preset, inspect the command, then launch scrcpy.",
+            "",
+        ]),
+        encoding="utf-8",
+    )
+    shutil.copyfile(binary, executable_directory / "scrcpy-tui")
+    shutil.copyfile(ROOT / "LICENSE", documentation / "copyright")
+    shutil.copyfile(ROOT / "README.md", documentation / "README.md")
+    shutil.copyfile(ROOT / "THIRD_PARTY_NOTICES.md", documentation / "THIRD_PARTY_NOTICES.md")
+
+    for path in package_root.rglob("*"):
+        if path.is_file():
+            path.chmod(0o755 if path.name == "scrcpy-tui" else 0o644)
+        elif path.is_dir():
+            path.chmod(0o755)
+        os.utime(path, (0, 0), follow_symlinks=False)
+    package_root.chmod(0o755)
+    os.utime(package_root, (0, 0))
+
+    package = output / f"scrcpy-tui_{version}_linux_{arch}.deb"
+    env = {**os.environ, "SOURCE_DATE_EPOCH": "0"}
+    subprocess.run(
+        ["dpkg-deb", "--root-owner-group", "--build", str(package_root), str(package)],
+        env=env,
+        check=True,
+    )
+    return package
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version", required=True)
@@ -22,6 +80,8 @@ def main():
         parser.error("version must be a SemVer version without a v prefix")
     if args.version != (ROOT / "VERSION").read_text().strip():
         parser.error("version must match the committed VERSION file")
+    if shutil.which("dpkg-deb") is None:
+        parser.error("dpkg-deb is required to build Debian packages")
     expected = {"linux_amd64", "linux_arm64"}
     args.output.mkdir(parents=True, exist_ok=True)
     notices = ROOT / "THIRD_PARTY_NOTICES.md"
@@ -51,11 +111,12 @@ def main():
                             info.mode = 0o755 if file.name == "scrcpy-tui" else 0o644
                             with file.open("rb") as content:
                                 tar.addfile(info, content)
-            with archive.open("rb") as content:
-                digest = hashlib.file_digest(content, "sha256").hexdigest()
-            checksums.append(f"{digest}  {archive.name}\n")
+            add_checksum(archive, checksums)
+            package = build_deb(stage / "scrcpy-tui", args.version, arch,
+                                args.output, Path(temporary))
+            add_checksum(package, checksums)
     (args.output / "SHA256SUMS").write_text("".join(checksums), encoding="ascii")
-    print(f"Built {len(checksums)} archives in {args.output}")
+    print(f"Built {len(checksums)} release artifacts in {args.output}")
 
 if __name__ == "__main__":
     main()

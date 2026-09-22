@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a checksum-verifying Linux installer with architecture detection and clear
+  PATH setup guidance for Bash, Zsh and Fish.
+- Add click-to-install Debian/Ubuntu packages for amd64 and arm64; packages install
+  the command under `/usr/bin`, depend on adb and leave scrcpy version selection to
+  the user.
+
 ## 0.3.1 — 2026-09-20
 
 - Add CodeQL analysis, a coverage floor, grouped dependency updates and CODEOWNERS.
