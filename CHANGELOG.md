@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.0 — 2026-09-23
+
 - Add a checksum-verifying Linux installer with architecture detection and clear
   PATH setup guidance for Bash, Zsh and Fish.
 - Add click-to-install Debian/Ubuntu packages for amd64 and arm64; packages install
