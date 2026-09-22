@@ -14,7 +14,7 @@ ACTIONLINT_VERSION := v1.7.12
 CYCLONEDX_GOMOD_VERSION := v1.12.0
 MIN_COVERAGE ?= 70
 
-.PHONY: build test coverage vet fmt fmt-check lint vuln workflows tools tools-quality tools-vuln tools-release check pty fixtures sbom release install notices
+.PHONY: build test coverage vet fmt fmt-check lint vuln workflows tools tools-quality tools-vuln tools-release check pty installer-check fixtures sbom release install notices
 build:
 	mkdir -p bin
 	CGO_ENABLED=0 $(GO) build -trimpath -ldflags '$(LDFLAGS)' -o bin/scrcpy-tui ./cmd/scrcpy-tui
@@ -47,9 +47,11 @@ workflows:
 	$(TOOLS_DIR)/actionlint
 pty: build
 	python3 scripts/pty_test.py bin/scrcpy-tui
+installer-check:
+	sh scripts/install_test.sh
 fixtures:
 	$(GO) run ./scripts/render
-check: fmt-check vet test coverage lint workflows pty
+check: fmt-check vet test coverage lint workflows pty installer-check
 sbom:
 	mkdir -p dist
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(TOOLS_DIR)/cyclonedx-gomod app -json -output-version 1.6 -packages -noserial -notimestamp -main cmd/scrcpy-tui -output dist/scrcpy-tui_$(VERSION).cdx.json .

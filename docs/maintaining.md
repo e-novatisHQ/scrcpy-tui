@@ -21,23 +21,27 @@ operational steps, not claims that a local file can enforce remote protections.
 
 ## Releases
 
+Release hosts need `dpkg-deb` in addition to the development prerequisites.
+
 1. Run `make tools`, `make check`, `make vuln`, `make notices`, and review the
    generated dependency notices.
 2. Update `VERSION` and move the curated `Unreleased` entries into a dated section
    in CHANGELOG.md. Commit the reviewed change through a PR.
 3. Wait for all main-branch CI checks, including native Linux arm64.
 4. Run `make notices sbom release`, verify `dist/SHA256SUMS`, and smoke-test
-   extracted archives. Only binaries built on a maintained Go toolchain are release
-   candidates.
+   extracted archives and Debian packages. Only binaries built on a maintained Go
+   toolchain are release candidates.
 5. Tag the reviewed commit as `v<contents of VERSION>` and push the tag explicitly.
 6. The tag workflow verifies the version/ancestry, reruns quality gates and creates
    a **draft** release. It prepends the curated version section from CHANGELOG.md,
    then GitHub automatically adds categorized merged PRs using `.github/release.yml`.
    Review its assets and generated notes before publishing.
 
-The archives contain the executable, MIT license, README and generated third-party
-license notices. Release assets also include a CycloneDX SBOM. GitHub Actions
-attests the archives, checksum file and SBOM through Sigstore; consumers can run
+The archives and Debian packages contain the executable, MIT license, README and
+generated third-party license notices. Debian packages install the executable under
+`/usr/bin` and declare adb and scrcpy as dependencies. Release assets also include a
+CycloneDX SBOM. GitHub Actions attests the archives, packages, checksum file and SBOM
+through Sigstore; consumers can run
 `gh attestation verify <asset> --repo e-novatisHQ/scrcpy-tui`. They do not contain
 user configuration, private audit notes,
 dev tools, screenshots of real devices, or adb/scrcpy binaries.

@@ -30,18 +30,33 @@ supported in this release. No graphical/video qualification is claimed by fake-t
 
 ## Install
 
-After a release is published, download the Linux archive matching your CPU from
-[GitHub Releases](https://github.com/e-novatisHQ/scrcpy-tui/releases), together with
-`SHA256SUMS`. Verify the archive before extracting it:
+### Debian and Ubuntu
+
+Download the `.deb` matching your CPU from
+[GitHub Releases](https://github.com/e-novatisHQ/scrcpy-tui/releases). Open it from
+your file manager and confirm the installation in the system software installer.
+The package installs `scrcpy-tui` in `/usr/bin`, so the command is immediately
+available in every terminal. It also declares `adb` and `scrcpy` as dependencies.
+
+### Other Linux distributions
+
+Download and inspect the installer, then run it. It detects amd64 or arm64, downloads
+the latest release, verifies its SHA-256 checksum and installs the executable under
+`~/.local/bin`:
 
 ```sh
-# Example for VERSION 0.3.1; choose linux_arm64 for arm64.
-sha256sum --ignore-missing --check SHA256SUMS
-mkdir scrcpy-tui-release
-tar -xzf scrcpy-tui_0.3.1_linux_amd64.tar.gz -C scrcpy-tui-release
-install -Dm755 scrcpy-tui-release/scrcpy-tui "$HOME/.local/bin/scrcpy-tui"
+curl -fsSLO https://raw.githubusercontent.com/e-novatisHQ/scrcpy-tui/main/install.sh
+less install.sh
+sh install.sh
 scrcpy-tui
 ```
+
+If `~/.local/bin` is absent from `PATH`, the installer prints the setup instructions
+for Bash, Zsh or Fish. It does not edit shell configuration silently. Install a specific
+version or choose another destination with `--version 0.3.1` and
+`--prefix /usr/local` (the latter may require elevated permissions).
+
+Every release includes `SHA256SUMS` for manual verification.
 
 Release assets also include a CycloneDX SBOM. Since v0.3.1, GitHub signs
 build-provenance attestations that can be checked with:
@@ -60,7 +75,8 @@ make build
 
 Use Go at the version in `.go-version` for development and releases. This builds a
 single executable; Go is not required on the target machine. `make install` installs
-under `~/.local/bin`; set `PREFIX` to choose another prefix.
+under `~/.local/bin`; set `PREFIX` to choose another prefix. Like the release
+installer, it does not modify shell configuration.
 
 ## Keyboard
 
@@ -121,7 +137,8 @@ make fixtures       # Synthetic text renderings
 make release        # Linux amd64/arm64 archives and SHA256SUMS
 ```
 
-GNU Make, Python 3.11+ and a C compiler are needed for the complete validation.
+GNU Make, Python 3.11+ and a C compiler are needed for the complete validation;
+release builds also require `dpkg-deb` (provided by `dpkg-dev` on Debian/Ubuntu).
 Tests use temporary profiles and fake devices. See [CONTRIBUTING](CONTRIBUTING.md),
 [architecture](docs/architecture.md), [roadmap](ROADMAP.md),
 [support](SUPPORT.md), [maintaining](docs/maintaining.md), and [security](SECURITY.md).

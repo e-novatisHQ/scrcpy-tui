@@ -38,8 +38,8 @@ jobs:
         run: |
           GOTOOLCHAIN="go$(cat .go-version)" python3 scripts/release.py \
             --version "$(cat VERSION)" --output dist-repro
-          for archive in dist/*.tar.gz; do
-            cmp "$archive" "dist-repro/$(basename "$archive")"
+          for artifact in dist/*.tar.gz dist/*.deb; do
+            cmp "$artifact" "dist-repro/$(basename "$artifact")"
           done
       - name: Verify and smoke-test amd64 archive
         run: |
@@ -48,11 +48,15 @@ jobs:
           mkdir smoke
           tar -xzf "scrcpy-tui_$(cat ../VERSION)_linux_amd64.tar.gz" -C smoke
           test "$(smoke/scrcpy-tui --version)" = "$(cat ../VERSION)"
+          dpkg-deb --info "scrcpy-tui_$(cat ../VERSION)_linux_amd64.deb"
+          dpkg-deb --extract "scrcpy-tui_$(cat ../VERSION)_linux_amd64.deb" deb-smoke
+          test "$(deb-smoke/usr/bin/scrcpy-tui --version)" = "$(cat ../VERSION)"
       - name: Attest release artifacts
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: |
             dist/*.tar.gz
+            dist/*.deb
             dist/*.cdx.json
             dist/SHA256SUMS
       - name: Create draft release
@@ -67,6 +71,6 @@ jobs:
             found { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
-          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.cdx.json dist/SHA256SUMS \
+          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.deb dist/*.cdx.json dist/SHA256SUMS \
             --verify-tag --draft --generate-notes --notes-file release-notes.md \
             --title "$RELEASE_TAG"
