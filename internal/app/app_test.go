@@ -15,7 +15,12 @@ type fake struct {
 	err error
 }
 
-func (f fake) Output(context.Context, string, ...string) ([]byte, error) { return f.b, f.err }
+func (f fake) Output(_ context.Context, _ string, args ...string) ([]byte, error) {
+	if len(args) == 1 && args[0] == "--help" {
+		return []byte(completeHelp), nil
+	}
+	return f.b, f.err
+}
 func TestDevicesAndRevalidation(t *testing.T) {
 	a := &App{Runner: fake{b: []byte("List of devices attached\nUSB device model:Pixel_8\nBAD unauthorized\nNET offline\n")}}
 	ds, err := a.Discover(context.Background())

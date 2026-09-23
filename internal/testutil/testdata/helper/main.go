@@ -18,6 +18,10 @@ func main() {
 		fmt.Print("List of devices attached\nUSB device model:Fake_TV\nBAD unauthorized\n")
 		return
 	case "scrcpy":
+		if len(os.Args) == 2 && os.Args[1] == "--help" {
+			fmt.Print("Options:\n    -s, --serial=value\n    -m, --max-size=value\n    -b, --video-bit-rate=value\n    --max-fps=value\n    --video-codec=name\n    --no-audio\n")
+			return
+		}
 		if err := os.WriteFile(os.Getenv("CAPTURE_PATH"), []byte(strings.Join(os.Args[1:], "\n")+"\n"), 0600); err != nil {
 			panic(err)
 		}
@@ -27,6 +31,9 @@ func main() {
 		os.Exit(2)
 	}
 	switch os.Args[1] {
+	case "flood":
+		fmt.Print(strings.Repeat("x", 2*1024*1024))
+		return
 	case "exit":
 		return
 	case "fail":
