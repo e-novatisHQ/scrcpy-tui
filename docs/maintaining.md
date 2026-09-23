@@ -77,9 +77,11 @@ Scan the staged tree before the first push; a Git ignore is not a secret scanner
 
 ### Windows gate (v0.5.0 work in progress)
 
-The `windows-amd64` CI job runs native race tests, vet, build and CLI smoke tests
-on `windows-2025`. Add this exact check name to protected-main required checks
-once it has passed. Preserve `quality`, `vulnerability`, `linux-amd64`,
+The `windows / windows-amd64` CI check runs native race tests, vet, build, ZIP
+reproducibility and MSI lifecycle checks on `windows-2025`. The prerequisite
+`windows / windows-packages` check builds and verifies the MSI on Linux. Require
+both exact names on protected main (enabled and verified on 2026-09-23); requiring only the dependent
+check could accept a skipped job when packaging fails. Preserve `quality`, `vulnerability`, `linux-amd64`,
 `linux-arm64`, `codeql`, signed commits, CODEOWNERS review and last-push approval.
 A Windows cross-build or hosted runner does not qualify a Windows 11 desktop or
 Android hardware. Do not tag/publish v0.5.0 before the delivery plan release gates.
