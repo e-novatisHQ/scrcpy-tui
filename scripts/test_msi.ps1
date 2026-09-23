@@ -35,10 +35,16 @@ try {
     Invoke-Msi '/i' $current 'reinstall-current'
     Assert-Installed $version
     Invoke-Msi '/x' $current 'uninstall-current'
-    if (Test-Path (Join-Path $installDir 'scrcpy-tui.exe')) { throw 'Uninstall left the executable' }
+    if (Test-Path $installDir) { throw 'Uninstall left the installation directory' }
     if (Test-Path 'HKCU:/Software/e-novatisHQ/scrcpy-tui') { throw 'Uninstall left product registration' }
     $after = [Environment]::GetEnvironmentVariable('Path', 'User')
-    if ($after -ne $originalPath) { throw 'Uninstall did not restore the original user PATH' }
+    # Windows Installer can normalize a trailing separator while removing its
+    # appended entry. Require every actual original entry, in the same order.
+    $beforeEntries = @(([string]$originalPath).TrimEnd(';') -split ';')
+    $afterEntries = @(([string]$after).TrimEnd(';') -split ';')
+    if (($beforeEntries -join ';') -cne ($afterEntries -join ';')) {
+        throw "Uninstall changed user PATH entries (before: $($beforeEntries.Count), after: $($afterEntries.Count))"
+    }
     Write-Output 'MSI install, upgrade, reinstall, PATH preservation and uninstall: PASS'
 } finally {
     # This host is disposable. Attempt owned product cleanup even after an assertion fails.

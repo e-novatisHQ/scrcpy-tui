@@ -76,7 +76,7 @@ def build_zip(stage, archive):
     # Fixed timestamp, order, mode and host metadata; no filesystem paths leak.
     # Store entries to avoid cross-host zlib-version differences.
     with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_STORED) as bundle:
-        for file in sorted(stage.iterdir()):
+        for file in sorted(stage.iterdir(), key=lambda file: file.name):
             info = zipfile.ZipInfo(file.name, date_time=(1980, 1, 1, 0, 0, 0))
             info.create_system = 3
             info.external_attr = 0o100644 << 16
@@ -123,7 +123,7 @@ def main():
             with archive.open("wb") as raw:
                 with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as compressed:
                     with tarfile.open(fileobj=compressed, mode="w") as tar:
-                        for file in sorted(stage.iterdir()):
+                        for file in sorted(stage.iterdir(), key=lambda file: file.name):
                             info = tar.gettarinfo(str(file), arcname=file.name)
                             info.uid = info.gid = 0
                             info.uname = info.gname = ""

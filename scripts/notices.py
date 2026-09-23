@@ -34,8 +34,9 @@ def main():
         if not directory:
             raise RuntimeError(f"Missing module cache directory: {module['Path']}; run go mod download")
         path = Path(directory)
-        licenses = sorted(file for file in path.iterdir() if file.is_file() and
-                          (file.name.lower().startswith("license") or file.name.lower().startswith("copying")))
+        licenses = sorted((file for file in path.iterdir() if file.is_file() and
+                          (file.name.lower().startswith("license") or file.name.lower().startswith("copying"))),
+                          key=lambda file: file.name)
         # This exact locked Windows dependency declares MIT and its author only
         # in README.md. Preserve the upstream declaration verbatim; do not invent
         # a copyright year or silently apply this exception to future versions.
