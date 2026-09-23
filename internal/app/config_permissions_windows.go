@@ -25,7 +25,9 @@ func restrictConfigFile(f *os.File) error {
 	if err != nil {
 		return err
 	}
-	return windows.SetSecurityInfo(windows.Handle(f.Fd()), windows.SE_FILE_OBJECT,
+	// os.CreateTemp does not request WRITE_DAC; the named API opens the
+	// security handle with the required rights while the empty file is held.
+	return windows.SetNamedSecurityInfo(f.Name(), windows.SE_FILE_OBJECT,
 		windows.DACL_SECURITY_INFORMATION|windows.PROTECTED_DACL_SECURITY_INFORMATION,
 		nil, nil, acl, nil)
 }
