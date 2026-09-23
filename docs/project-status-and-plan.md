@@ -138,3 +138,4 @@ Preparation without premature qualification:
 - [QUAL-01 observed matrix and promotion protocol](qualifications/compatibility-matrix.md).
 - [QUAL-02 GUI protocol, NOT RUN](qualifications/debian-gui-protocol.md).
 - [DIST/REL/API conditional decisions](backlog-decisions.md).
+- [UX-01 isolated localization evaluation](../experiments/localization/README.md).
