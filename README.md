@@ -120,7 +120,8 @@ Exit codes: 0 success/menu quit, 1 technical error, 3 invalid input, 4 missing C
 
 `$XDG_CONFIG_HOME/scrcpy-tui/presets.json`, or `~/.config/scrcpy-tui/presets.json`.
 Use `--config /path/profile.json` for an isolated profile. Reads do not write.
-Files and recovery copies use mode 0600. Before replacing an invalid configuration,
+Files and recovery copies use mode 0600 on Unix. Windows uses a protected ACL
+limited to the current user and SYSTEM. Before replacing an invalid configuration,
 original bytes are retained in `presets.json.recovery-*`. Close the launcher before
 restoring a backup or editing the JSON manually. Concurrent profile writes are not merged.
 
@@ -152,3 +153,5 @@ Releases are tagged, quality-gated and created as drafts.
 [MIT](LICENSE), © e-novatisHQ and contributors. Dependencies retain their own
 licenses; exact third-party notices are included in every release archive.
 scrcpy-tui is an independent project, not affiliated with Genymobile or Google.
+
+Windows x64 support is being qualified for v0.5.0; see the [Windows guide](docs/windows.fr.md) and [release gates](docs/project-status-and-plan.md). v0.4.0 remains Linux-only.

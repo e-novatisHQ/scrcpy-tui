@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Separate platform session supervision and add Windows Job Object ownership,
+  targeted graceful interruption and bounded cleanup of the launched tree.
+- Protect Windows profile and recovery files with per-user ACLs.
+- Add native Windows CI, reproducible x64 ZIPs, per-target SBOMs and a per-user
+  MSI with PATH integration, upgrade/uninstall tests and release attestations.
+  Windows 11 hardware qualification remains a release gate; Authenticode awaits
+  external provisioning.
+
 ## 0.4.0 — 2026-09-23
 
 - Add a checksum-verifying Linux installer with architecture detection and clear

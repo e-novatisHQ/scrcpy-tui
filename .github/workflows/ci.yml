@@ -78,3 +78,5 @@ jobs:
           go-version-file: .go-version
           cache: true
       - run: make test pty
+  windows:
+    uses: ./.github/workflows/windows-release-check.yml

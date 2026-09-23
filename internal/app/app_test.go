@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/e-novatisHQ/scrcpy-tui/internal/testutil"
 )
 
 type fake struct {
@@ -63,10 +65,7 @@ func TestPersistenceAndRecovery(t *testing.T) {
 	if w != "" || len(b.Config.Presets) != 4 || b.Config.LastDevice != "USB" {
 		t.Fatal(w, b)
 	}
-	st, _ := os.Stat(path)
-	if st.Mode().Perm() != 0600 {
-		t.Fatal(st.Mode())
-	}
+	assertPrivateConfig(t, path)
 	os.WriteFile(path, []byte("{"), 0600)
 	_, w = New(path)
 	if w == "" {
@@ -80,9 +79,7 @@ func TestPersistenceAndRecovery(t *testing.T) {
 
 func TestPrepareRejectsDisconnectedDevice(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "scrcpy"), []byte("#!/bin/sh\nexit 0\n"), 0700); err != nil {
-		t.Fatal(err)
-	}
+	testutil.Copy(t, testutil.Build(t, "helper"), dir, "scrcpy")
 	t.Setenv("PATH", dir)
 	a := &App{Runner: fake{b: []byte("USB device model:TV\n")}}
 	p := Defaults().Presets[0]
@@ -123,10 +120,7 @@ func TestRecoveryPreservesOriginalOnSave(t *testing.T) {
 			if string(data) != original {
 				t.Fatal("original changed")
 			}
-			st, _ := os.Stat(backups[0])
-			if st.Mode().Perm() != 0600 {
-				t.Fatal("backup permission")
-			}
+			assertPrivateConfig(t, backups[0])
 			a.Save()
 			backups, _ = filepath.Glob(path + ".recovery-*")
 			if len(backups) != 1 {

@@ -54,7 +54,9 @@ fixtures:
 check: fmt-check vet test coverage lint workflows pty installer-check
 sbom:
 	mkdir -p dist
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 $(TOOLS_DIR)/cyclonedx-gomod app -json -output-version 1.6 -packages -noserial -notimestamp -main cmd/scrcpy-tui -output dist/scrcpy-tui_$(VERSION).cdx.json .
+	for target in linux_amd64 linux_arm64 windows_amd64; do \
+		GOOS="$${target%_*}" GOARCH="$${target#*_}" CGO_ENABLED=0 $(TOOLS_DIR)/cyclonedx-gomod app -json -output-version 1.6 -packages -noserial -notimestamp -main cmd/scrcpy-tui -output "dist/scrcpy-tui_$(VERSION)_$$target.cdx.json" .; \
+	done
 release:
 	python3 scripts/release.py --version '$(VERSION)'
 install: build

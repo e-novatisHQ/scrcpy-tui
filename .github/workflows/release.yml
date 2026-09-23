@@ -8,7 +8,10 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  windows:
+    uses: ./.github/workflows/windows-release-check.yml
   release:
+    needs: windows
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -38,7 +41,7 @@ jobs:
         run: |
           GOTOOLCHAIN="go$(cat .go-version)" python3 scripts/release.py \
             --version "$(cat VERSION)" --output dist-repro
-          for artifact in dist/*.tar.gz dist/*.deb; do
+          for artifact in dist/*.tar.gz dist/*.deb dist/*.zip; do
             cmp "$artifact" "dist-repro/$(basename "$artifact")"
           done
       - name: Verify and smoke-test amd64 archive
@@ -54,12 +57,26 @@ jobs:
           test "$(dpkg-deb --field "$package" Suggests)" = "scrcpy"
           dpkg-deb --extract "$package" deb-smoke
           test "$(deb-smoke/usr/bin/scrcpy-tui --version)" = "$(cat ../VERSION)"
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: windows-packages
+          path: windows-packages
+      - name: Include the native-tested MSI and verify matching ZIP
+        run: |
+          version="$(cat VERSION)"
+          cmp "dist/scrcpy-tui_${version}_windows_amd64.zip" "windows-packages/scrcpy-tui_${version}_windows_amd64.zip"
+          cp "windows-packages/scrcpy-tui_${version}_windows_amd64.msi" dist/
+          cd dist
+          sha256sum "scrcpy-tui_${version}_windows_amd64.msi" >> SHA256SUMS
+          sha256sum --check SHA256SUMS
       - name: Attest release artifacts
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
         with:
           subject-path: |
             dist/*.tar.gz
             dist/*.deb
+            dist/*.zip
+            dist/*.msi
             dist/*.cdx.json
             dist/SHA256SUMS
       - name: Create draft release
@@ -74,6 +91,6 @@ jobs:
             found { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
-          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.deb dist/*.cdx.json dist/SHA256SUMS \
+          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.deb dist/*.zip dist/*.msi dist/*.cdx.json dist/SHA256SUMS \
             --verify-tag --draft --generate-notes --notes-file release-notes.md \
             --title "$RELEASE_TAG"

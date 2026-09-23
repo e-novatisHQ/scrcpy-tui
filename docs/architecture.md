@@ -36,3 +36,23 @@ Tests exercise three layers: pure parsers/state/rendering; CLI with injectable
 streams and fake executables; real Linux PTYs with disposable profiles, real
 subprocess groups and termios restoration. Automated tests cannot prove a real
 Android device displays video correctly.
+
+Windows supervision (under qualification) creates scrcpy suspended in a new
+console process group, assigns it to a non-inheritable Job Object with
+`KILL_ON_JOB_CLOSE`, then resumes its initial thread. Assignment failure fails
+closed. No name lookup or system-wide process termination is used. Interrupts
+request a group-scoped Ctrl+Break, wait up to two seconds, then terminate the job.
+A retained process handle protects the group ID from reuse during cleanup. The
+job also owns descendants that outlive their parent or retain an output pipe.
+
+Graceful control events require a shared console and a cooperating child; the
+Job Object remains the forced-cleanup boundary when either is unavailable.
+There is a narrow startup crash boundary between creating the suspended process
+and assigning it to the job: abrupt termination of the launcher in that interval
+can leave a suspended child. Normal error paths kill and reap it. Runtime crash
+cleanup after successful assignment is provided by closing the last job handle.
+Native automated helpers validate process behavior; Windows Terminal, actual
+scrcpy video/audio and MSI qualification remain separate release gates.
+
+API references: [Job Objects](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects),
+[control events](https://learn.microsoft.com/en-us/windows/console/generateconsolectrlevent).
