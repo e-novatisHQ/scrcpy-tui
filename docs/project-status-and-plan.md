@@ -67,7 +67,7 @@ which keeps only the high-level direction.
 | Android compatibility | Four v0.3.1 qualification records | Evidence currently uses scrcpy 4.1 and a finite device matrix |
 | Debian package | APT simulation, extraction, version smoke test and KDE Discover association | GUI installation requiring local authentication was not completed on the qualification host |
 | Release integrity | Reproducible artifacts, checksums, signed tag, SBOM and attestations | Windows Authenticode signing is not yet applicable |
-| Windows | Architecture assessment only | Current Unix signal and process-group implementation does not compile as a Windows session backend |
+| Windows | Job Object backend, native CI, ZIP/MSI and lifecycle tests in [PR #15](https://github.com/e-novatisHQ/scrcpy-tui/pull/15) | Pending review and real Windows 11/device qualification; no Windows release published |
 
 ## Next delivery: Windows v0.5.0
 
@@ -103,6 +103,9 @@ flowchart LR
     F --> I[WIN-09 Authenticode]
 ```
 
+Implementation evidence and current gates are maintained in
+[the delivery matrix](windows-delivery-evidence.md).
+
 ## Cross-platform backlog after v0.5.0
 
 | ID | Work item | Priority | Completion signal |
@@ -128,3 +131,11 @@ A Windows release may be published only when:
 6. At least one Android device launches successfully over USB and ADB Wi-Fi.
 7. Known limitations, including signing or SmartScreen status, appear in release notes.
 
+
+Preparation without premature qualification:
+
+- [CORE-01 capability contract](scrcpy-capabilities.md).
+- [QUAL-01 observed matrix and promotion protocol](qualifications/compatibility-matrix.md).
+- [QUAL-02 GUI protocol, NOT RUN](qualifications/debian-gui-protocol.md).
+- [DIST/REL/API conditional decisions](backlog-decisions.md).
+- [UX-01 isolated localization evaluation](../experiments/localization/README.md).
