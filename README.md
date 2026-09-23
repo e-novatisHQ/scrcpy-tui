@@ -153,3 +153,5 @@ Releases are tagged, quality-gated and created as drafts.
 [MIT](LICENSE), © e-novatisHQ and contributors. Dependencies retain their own
 licenses; exact third-party notices are included in every release archive.
 scrcpy-tui is an independent project, not affiliated with Genymobile or Google.
+
+Windows x64 support is being qualified for v0.5.0; see the [Windows guide](docs/windows.fr.md) and [release gates](docs/project-status-and-plan.md). v0.4.0 remains Linux-only.

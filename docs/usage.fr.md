@@ -67,3 +67,5 @@ make fixtures
 ```
 
 `bin/scrcpy-tui` est le binaire local. `dist/` contient les deux architectures et SHA256SUMS. Pour installer : copier le binaire compatible vers `~/.local/bin/scrcpy-tui`. Les tests utilisent des profils temporaires et des outils factices. Les tests PTY qualifient le clavier, la persistance, les erreurs CLI et la restauration du terminal ; le fonctionnement nominal a été confirmé par l’utilisateur le 18 septembre 2026. La CI exécute ces tests sur des hôtes Linux amd64 et arm64.
+
+Le port Windows x64 est en qualification : voir le [guide Windows](windows.fr.md) pour PowerShell, MSI, PATH et ACL. Les mentions de mode 0600 et de signaux Unix ci-dessus concernent Linux.
