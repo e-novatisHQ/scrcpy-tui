@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Separate Unix session supervision from the Windows backend; Windows session
+  launch remains disabled until owned-process supervision is available.
+
 ## 0.4.0 — 2026-09-23
 
 - Add a checksum-verifying Linux installer with architecture detection and clear
