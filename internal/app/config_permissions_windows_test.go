@@ -1,6 +1,7 @@
 package app
 
 import (
+	"strings"
 	"testing"
 
 	"golang.org/x/sys/windows"
@@ -16,7 +17,15 @@ func assertPrivateConfig(t *testing.T, path string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if sd.String() != expected.String() {
+	control, _, err := sd.Control()
+	if err != nil || control&windows.SE_DACL_PROTECTED == 0 {
+		t.Fatalf("ACL inheritance is not protected: %v", err)
+	}
+	// Windows adds the AI bookkeeping flag even to a protected DACL. Compare
+	// the actual ACE list, while checking protection independently above.
+	actualACEs := sd.String()[strings.Index(sd.String(), "("):]
+	expectedACEs := expected.String()[strings.Index(expected.String(), "("):]
+	if actualACEs != expectedACEs {
 		t.Fatalf("profile ACL: %s; want %s", sd.String(), expected.String())
 	}
 }
