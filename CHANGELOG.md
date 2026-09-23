@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Check installed scrcpy help before launching unchanged bundled presets and
+  explain missing options without contacting the selected device.
 - Separate platform session supervision and add Windows Job Object ownership,
   targeted graceful interruption and bounded cleanup of the launched tree.
 - Protect Windows profile and recovery files with per-user ACLs.

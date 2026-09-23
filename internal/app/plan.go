@@ -26,8 +26,12 @@ func (a *App) Prepare(ctx context.Context, serial string, p Preset, extra []stri
 	if err != nil {
 		return nil, err
 	}
-	if _, err = exec.LookPath("scrcpy"); err != nil {
+	executable, err := exec.LookPath("scrcpy")
+	if err != nil {
 		return nil, errors.New("scrcpy introuvable : installez-le et vérifiez PATH")
+	}
+	if err := a.checkCapabilities(ctx, executable, p); err != nil {
+		return nil, err
 	}
 	ds, err := a.Discover(ctx)
 	if err != nil {
@@ -35,7 +39,7 @@ func (a *App) Prepare(ctx context.Context, serial string, p Preset, extra []stri
 	}
 	for _, d := range ds {
 		if d.Serial == serial && d.State == "device" {
-			return exec.Command("scrcpy", args...), nil
+			return exec.Command(executable, args...), nil
 		}
 	}
 	return nil, errors.New("l'appareil n'est plus disponible ; rafraîchissez avec r")

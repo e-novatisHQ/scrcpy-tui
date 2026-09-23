@@ -15,6 +15,9 @@ binary=str(pathlib.Path(sys.argv[1] if len(sys.argv)>1 else 'bin/scrcpy-tui').re
 with tempfile.TemporaryDirectory() as root:
     root=pathlib.Path(root)
     for name,body in {'adb':'#!/bin/sh\nprintf "List of devices attached\\nUSB device model:Pixel_8\\nBAD unauthorized\\n"\n','scrcpy':'#!/bin/sh\nprintf "%s\\n" "$@" > "$TEST_ROOT/launched"\nprintf \"ERROR synthetic diagnostic\\n\" >&2\necho $$ > "$TEST_ROOT/session-pid"\nsleep "${TEST_SLEEP:-0.1}" &\necho $! > "$TEST_ROOT/child-pid"\nwait\nexit "${TEST_EXIT:-0}"\n'}.items():
+        if name == 'scrcpy':
+            help_text = "    -s, --serial=value\n    -m, --max-size=value\n    -b, --video-bit-rate=value\n    --max-fps=value\n    --video-codec=name\n    --no-audio\n"
+            body = body.replace('#!/bin/sh\n', '#!/bin/sh\nif [ "$1" = --help ]; then\ncat <<\'HELP\'\n' + help_text + 'HELP\nexit 0\nfi\n', 1)
         path=root/name;path.write_text(body);path.chmod(0o755)
     env={**os.environ,'PATH':str(root)+':'+os.environ['PATH'],'TEST_ROOT':str(root),'TERM':'xterm-256color'}
     for finish in ('q','failure','ctrl-c','sigterm'):

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -13,8 +14,32 @@ type Runner interface {
 }
 type System struct{}
 
+const maxToolOutput = 1024 * 1024
+
+type toolOutput struct {
+	data      []byte
+	truncated bool
+}
+
+func (b *toolOutput) Write(p []byte) (int, error) {
+	n := min(len(p), maxToolOutput-len(b.data))
+	b.data = append(b.data, p[:n]...)
+	b.truncated = b.truncated || n != len(p)
+	return len(p), nil
+}
+
 func (System) Output(ctx context.Context, name string, args ...string) ([]byte, error) {
-	return exec.CommandContext(ctx, name, args...).CombinedOutput()
+	cmd := exec.CommandContext(ctx, name, args...)
+	// A wrapper's descendant retaining a pipe must not defeat the probe timeout.
+	cmd.WaitDelay = 2 * time.Second
+	var output toolOutput
+	// os/exec uses one copy goroutine when these comparable writers are identical.
+	cmd.Stdout, cmd.Stderr = &output, &output
+	err := cmd.Run()
+	if output.truncated {
+		err = errors.Join(err, errors.New("sortie de commande trop volumineuse (limite 1 Mio)"))
+	}
+	return output.data, err
 }
 
 func ParseDevices(b []byte) []Device {
