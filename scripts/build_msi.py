@@ -47,7 +47,7 @@ def build(stage, version, output):
      <Directory Id="INSTALLFOLDER" Name="scrcpy-tui">
       <Component Id="AppFiles" Guid="{component}" Win64="yes">
        {files}
-       <RegistryValue Root="HKCU" Key="Software\\e-novatisHQ\\scrcpy-tui" Name="InstalledVersion" Type="string" Value="{version}" KeyPath="yes" />
+       <RegistryValue Id="InstalledVersion" Root="HKCU" Key="Software\\e-novatisHQ\\scrcpy-tui" Name="InstalledVersion" Type="string" Value="{version}" KeyPath="yes" />
        <Environment Id="UserPath" Name="PATH" Action="set" Part="last" System="no" Permanent="no" Value="[INSTALLFOLDER]" />
        <RemoveFolder Id="RemoveInstallFolder" On="uninstall" />
       </Component>

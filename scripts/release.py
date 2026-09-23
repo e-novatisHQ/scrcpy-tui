@@ -74,13 +74,14 @@ def build_deb(binary, version, arch, output, temporary):
 
 def build_zip(stage, archive):
     # Fixed timestamp, order, mode and host metadata; no filesystem paths leak.
-    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+    # Store entries to avoid cross-host zlib-version differences.
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_STORED) as bundle:
         for file in sorted(stage.iterdir()):
             info = zipfile.ZipInfo(file.name, date_time=(1980, 1, 1, 0, 0, 0))
             info.create_system = 3
             info.external_attr = 0o100644 << 16
-            info.compress_type = zipfile.ZIP_DEFLATED
-            bundle.writestr(info, file.read_bytes(), compresslevel=9)
+            info.compress_type = zipfile.ZIP_STORED
+            bundle.writestr(info, file.read_bytes())
 
 
 def main():

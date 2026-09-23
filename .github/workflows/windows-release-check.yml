@@ -23,6 +23,8 @@ jobs:
           unzip "dist/scrcpy-tui_$(cat VERSION)_windows_amd64.zip" -d msi-stage
           docker build -t scrcpy-tui-msi-toolchain:0.106 packaging/windows
           python3 scripts/build_msi.py --stage msi-stage --version "$(cat VERSION)" --output "dist/scrcpy-tui_$(cat VERSION)_windows_amd64.msi"
+          python3 scripts/build_msi.py --stage msi-stage --version "$(cat VERSION)" --output "dist-repro/scrcpy-tui_$(cat VERSION)_windows_amd64.msi"
+          python3 scripts/verify_msi.py --stage msi-stage --msi "dist/scrcpy-tui_$(cat VERSION)_windows_amd64.msi" --compare "dist-repro/scrcpy-tui_$(cat VERSION)_windows_amd64.msi"
           python3 scripts/build_msi.py --stage msi-stage --version 0.0.1 --test-fixture --output dist/upgrade-fixture.msi
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

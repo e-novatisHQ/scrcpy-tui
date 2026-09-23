@@ -49,7 +49,7 @@ def main():
         for file in licenses:
             text = file.read_text(encoding="utf-8")
             chunks.append(f"\n{file.name}\n\n```text\n{text.rstrip()}\n```\n")
-    (ROOT / "THIRD_PARTY_NOTICES.md").write_text("".join(chunks), encoding="utf-8")
+    (ROOT / "THIRD_PARTY_NOTICES.md").write_text("".join(chunks), encoding="utf-8", newline="\n")
 
 if __name__ == "__main__":
     main()
