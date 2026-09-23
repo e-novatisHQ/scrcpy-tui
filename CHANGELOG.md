@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Separate Unix session supervision from the Windows backend; Windows session
-  launch remains disabled until owned-process supervision is available.
+- Separate platform session supervision and add Windows Job Object ownership,
+  targeted graceful interruption and bounded cleanup of the launched tree.
 
 ## 0.4.0 — 2026-09-23
 
