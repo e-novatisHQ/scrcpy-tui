@@ -80,22 +80,29 @@ jobs:
           Expand-Archive "dist/$zip" -DestinationPath "$env:RUNNER_TEMP/zip-smoke"
           $actual = & "$env:RUNNER_TEMP/zip-smoke/scrcpy-tui.exe" --version
           if ($LASTEXITCODE -ne 0 -or $actual -ne $version) { throw 'ZIP smoke test failed' }
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - id: packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: windows-packages
           path: windows-packages
-      - name: Verify cross-host ZIP reproducibility and MSI lifecycle
+      - name: Verify cross-host ZIP reproducibility
         shell: pwsh
         run: |
           $version = (Get-Content VERSION -Raw).Trim()
           $zip = "scrcpy-tui_${version}_windows_amd64.zip"
-          if ((Get-FileHash "dist/$zip").Hash -ne (Get-FileHash "windows-packages/$zip").Hash) { throw 'Linux/Windows ZIP builds differ' }
-          ./scripts/test_msi.ps1 -PackageDirectory windows-packages
+          python scripts/compare_zip.py "dist/$zip" "windows-packages/$zip"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify native MSI lifecycle
+        if: ${{ !cancelled() && steps.packages.outcome == 'success' }}
+        shell: pwsh
+        run: ./scripts/test_msi.ps1 -PackageDirectory windows-packages
       - name: Preserve installer diagnostics
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: msi-test-logs
-          path: ${{ runner.temp }}/msi-logs/*.log
+          path: |
+            ${{ runner.temp }}/msi-logs/*.log
+            dist/*.zip
           retention-days: 7
           if-no-files-found: ignore
