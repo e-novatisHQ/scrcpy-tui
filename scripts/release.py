@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build deterministic Linux archives, Debian packages and SHA-256 hashes."""
+"""Build deterministic Linux/Windows archives, Debian packages and SHA-256 hashes."""
 import argparse
 import gzip
 import hashlib
@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -71,18 +72,30 @@ def build_deb(binary, version, arch, output, temporary):
     return package
 
 
+def build_zip(stage, archive):
+    # Fixed timestamp, order, mode and host metadata; no filesystem paths leak.
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
+        for file in sorted(stage.iterdir()):
+            info = zipfile.ZipInfo(file.name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.create_system = 3
+            info.external_attr = 0o100644 << 16
+            info.compress_type = zipfile.ZIP_DEFLATED
+            bundle.writestr(info, file.read_bytes(), compresslevel=9)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version", required=True)
     parser.add_argument("--output", type=Path, default=ROOT / "dist")
+    parser.add_argument("--target", action="append", choices=("linux_amd64", "linux_arm64", "windows_amd64"))
     args = parser.parse_args()
     if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", args.version):
         parser.error("version must be a SemVer version without a v prefix")
     if args.version != (ROOT / "VERSION").read_text().strip():
         parser.error("version must match the committed VERSION file")
-    if shutil.which("dpkg-deb") is None:
+    expected = set(args.target or ("linux_amd64", "linux_arm64", "windows_amd64"))
+    if any(target.startswith("linux_") for target in expected) and shutil.which("dpkg-deb") is None:
         parser.error("dpkg-deb is required to build Debian packages")
-    expected = {"linux_amd64", "linux_arm64"}
     args.output.mkdir(parents=True, exist_ok=True)
     notices = ROOT / "THIRD_PARTY_NOTICES.md"
     if not notices.exists():
@@ -92,13 +105,19 @@ def main():
         for target in sorted(expected):
             stage = Path(temporary) / target
             stage.mkdir()
-            arch = target.split("_")[1]
-            env = {**os.environ, "GOOS": "linux", "GOARCH": arch, "CGO_ENABLED": "0"}
+            system, arch = target.split("_")
+            binary = "scrcpy-tui.exe" if system == "windows" else "scrcpy-tui"
+            env = {**os.environ, "GOOS": system, "GOARCH": arch, "CGO_ENABLED": "0"}
             subprocess.run(["go", "build", "-buildvcs=false", "-trimpath", "-ldflags",
-                            f"-s -w -X main.version={args.version}", "-o", str(stage / "scrcpy-tui"),
+                            f"-s -w -X main.version={args.version}", "-o", str(stage / binary),
                             "./cmd/scrcpy-tui"], cwd=ROOT, env=env, check=True)
             for name in ("LICENSE", "README.md", "THIRD_PARTY_NOTICES.md"):
                 shutil.copyfile(ROOT / name, stage / name)
+            if system == "windows":
+                archive = args.output / f"scrcpy-tui_{args.version}_{target}.zip"
+                build_zip(stage, archive)
+                add_checksum(archive, checksums)
+                continue
             archive = args.output / f"scrcpy-tui_{args.version}_{target}.tar.gz"
             with archive.open("wb") as raw:
                 with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as compressed:
@@ -115,6 +134,8 @@ def main():
             package = build_deb(stage / "scrcpy-tui", args.version, arch,
                                 args.output, Path(temporary))
             add_checksum(package, checksums)
+    for sbom in sorted(args.output.glob(f"scrcpy-tui_{args.version}*.cdx.json")):
+        add_checksum(sbom, checksums)
     (args.output / "SHA256SUMS").write_text("".join(checksums), encoding="ascii")
     print(f"Built {len(checksums)} release artifacts in {args.output}")
 

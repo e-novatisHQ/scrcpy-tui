@@ -1,0 +1,51 @@
+name: Windows validation
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  windows:
+    name: windows-amd64
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: .go-version
+          cache: true
+      - name: Native race tests and vet
+        shell: pwsh
+        run: |
+          go test -race -count=1 -timeout=180s ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go vet ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build and smoke-test native CLI
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $env:CGO_ENABLED = '0'
+          go build -trimpath -ldflags "-s -w -X main.version=$version" -o bin/scrcpy-tui.exe ./cmd/scrcpy-tui
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $actual = & ./bin/scrcpy-tui.exe --version
+          if ($LASTEXITCODE -ne 0 -or $actual -ne $version) { throw 'Version smoke test failed' }
+          & ./bin/scrcpy-tui.exe --config "$env:RUNNER_TEMP/scrcpy-smoke.json" preview --device FAKE
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Reproduce and smoke-test Windows ZIP
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          python scripts/notices.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/release.py --version $version --target windows_amd64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python scripts/release.py --version $version --target windows_amd64 --output dist-repro
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $zip = "scrcpy-tui_${version}_windows_amd64.zip"
+          if ((Get-FileHash "dist/$zip").Hash -ne (Get-FileHash "dist-repro/$zip").Hash) { throw 'ZIP is not reproducible' }
+          Expand-Archive "dist/$zip" -DestinationPath "$env:RUNNER_TEMP/zip-smoke"
+          $actual = & "$env:RUNNER_TEMP/zip-smoke/scrcpy-tui.exe" --version
+          if ($LASTEXITCODE -ne 0 -or $actual -ne $version) { throw 'ZIP smoke test failed' }

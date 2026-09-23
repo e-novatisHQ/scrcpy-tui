@@ -8,7 +8,10 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  windows:
+    uses: ./.github/workflows/windows-release-check.yml
   release:
+    needs: windows
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -38,7 +41,7 @@ jobs:
         run: |
           GOTOOLCHAIN="go$(cat .go-version)" python3 scripts/release.py \
             --version "$(cat VERSION)" --output dist-repro
-          for artifact in dist/*.tar.gz dist/*.deb; do
+          for artifact in dist/*.tar.gz dist/*.deb dist/*.zip; do
             cmp "$artifact" "dist-repro/$(basename "$artifact")"
           done
       - name: Verify and smoke-test amd64 archive
@@ -60,6 +63,7 @@ jobs:
           subject-path: |
             dist/*.tar.gz
             dist/*.deb
+            dist/*.zip
             dist/*.cdx.json
             dist/SHA256SUMS
       - name: Create draft release
@@ -74,6 +78,6 @@ jobs:
             found { print }
           ' CHANGELOG.md > release-notes.md
           test -s release-notes.md
-          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.deb dist/*.cdx.json dist/SHA256SUMS \
+          gh release create "$RELEASE_TAG" dist/*.tar.gz dist/*.deb dist/*.zip dist/*.cdx.json dist/SHA256SUMS \
             --verify-tag --draft --generate-notes --notes-file release-notes.md \
             --title "$RELEASE_TAG"

@@ -79,32 +79,4 @@ jobs:
           cache: true
       - run: make test pty
   windows:
-    name: windows-amd64
-    runs-on: windows-2025
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: .go-version
-          cache: true
-      - name: Native race tests and vet
-        shell: pwsh
-        run: |
-          go test -race -count=1 -timeout=180s ./...
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          go vet ./...
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Build and smoke-test native CLI
-        shell: pwsh
-        run: |
-          $version = (Get-Content VERSION -Raw).Trim()
-          $env:CGO_ENABLED = '0'
-          go build -trimpath -ldflags "-s -w -X main.version=$version" -o bin/scrcpy-tui.exe ./cmd/scrcpy-tui
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $actual = & ./bin/scrcpy-tui.exe --version
-          if ($LASTEXITCODE -ne 0 -or $actual -ne $version) { throw 'Version smoke test failed' }
-          & ./bin/scrcpy-tui.exe --config "$env:RUNNER_TEMP/scrcpy-smoke.json" preview --device FAKE
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    uses: ./.github/workflows/windows-release-check.yml
