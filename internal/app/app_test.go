@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/e-novatisHQ/scrcpy-tui/internal/testutil"
 )
 
 type fake struct {
@@ -80,9 +82,7 @@ func TestPersistenceAndRecovery(t *testing.T) {
 
 func TestPrepareRejectsDisconnectedDevice(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "scrcpy"), []byte("#!/bin/sh\nexit 0\n"), 0700); err != nil {
-		t.Fatal(err)
-	}
+	testutil.Copy(t, testutil.Build(t, "helper"), dir, "scrcpy")
 	t.Setenv("PATH", dir)
 	a := &App{Runner: fake{b: []byte("USB device model:TV\n")}}
 	p := Defaults().Presets[0]

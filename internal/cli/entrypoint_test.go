@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/e-novatisHQ/scrcpy-tui/internal/testutil"
 )
 
 func invoke(t *testing.T, args ...string) (int, string, string) {
@@ -40,10 +42,9 @@ func TestEntrypointReadOnlyCommands(t *testing.T) {
 }
 func TestEntrypointDiscoveryAndLaunch(t *testing.T) {
 	dir := t.TempDir()
-	for name, body := range map[string]string{"adb": "#!/bin/sh\nprintf 'List of devices attached\\nUSB device model:Fake_TV\\nBAD unauthorized\\n'\n", "scrcpy": "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$CAPTURE_PATH\"\n"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0700); err != nil {
-			t.Fatal(err)
-		}
+	helper := testutil.Build(t, "helper")
+	for _, name := range []string{"adb", "scrcpy"} {
+		testutil.Copy(t, helper, dir, name)
 	}
 	t.Setenv("PATH", dir)
 	capture := filepath.Join(dir, "args")
