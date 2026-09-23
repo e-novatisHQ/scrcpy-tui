@@ -2,6 +2,9 @@
 """Build a per-user MSI using the explicitly provisioned, pinned wixl container."""
 import argparse
 import hashlib
+import json
+import os
+from functools import lru_cache
 from pathlib import Path
 import re
 import shutil
@@ -14,6 +17,15 @@ ROOT = Path(__file__).resolve().parent.parent
 IMAGE = "scrcpy-tui-msi-toolchain:0.106"
 UPGRADE_CODE = "26D5D8DF-48CB-568E-972F-C7D0320C89EC"
 NAMESPACE = uuid.UUID(UPGRADE_CODE)
+
+
+@lru_cache(maxsize=1)
+def docker_user():
+    # Rootless Docker maps container root to the caller; rootful CI needs the
+    # caller UID explicitly, otherwise extraction leaves root-owned directories.
+    options = json.loads(subprocess.check_output(
+        ["docker", "info", "--format", "{{json .SecurityOptions}}"], text=True))
+    return "0:0" if "name=rootless" in options else f"{os.getuid()}:{os.getgid()}"
 
 
 def build(stage, version, output):
@@ -59,7 +71,7 @@ def build(stage, version, output):
  </Product>
 </Wix>
 ''', encoding="utf-8")
-        subprocess.run(["docker", "run", "--rm", "--network", "none", "--mount",
+        subprocess.run(["docker", "run", "--rm", "--user", docker_user(), "--network", "none", "--mount",
                         f"type=bind,src={work},dst=/build", IMAGE,
                         "-a", "x64", "-o", "product.msi", "product.wxs"], check=True)
         # wixl 0.106 omits the uninstall marker despite Permanent="no" and
@@ -68,7 +80,7 @@ def build(stage, version, output):
             "Environment\tName\tValue\tComponent_\n"
             "s72\tl64\tL255\ts72\nEnvironment\tEnvironment\n"
             "UserPath\t=-PATH\t[~];[INSTALLFOLDER]\tAppFiles\n", encoding="utf-8")
-        subprocess.run(["docker", "run", "--rm", "--network", "none", "--mount",
+        subprocess.run(["docker", "run", "--rm", "--user", docker_user(), "--network", "none", "--mount",
                         f"type=bind,src={work},dst=/build", "--entrypoint", "msibuild", IMAGE,
                         "product.msi", "-q", "DELETE FROM `Environment`", "-i", "Environment.idt"], check=True)
         output.parent.mkdir(parents=True, exist_ok=True)

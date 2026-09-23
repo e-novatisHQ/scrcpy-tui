@@ -8,12 +8,12 @@ import shutil
 import subprocess
 import tempfile
 
-from build_msi import IMAGE, UPGRADE_CODE
+from build_msi import IMAGE, UPGRADE_CODE, docker_user
 
 
 def container(work, tool, *args):
     return subprocess.check_output([
-        "docker", "run", "--rm", "--network", "none", "--mount",
+        "docker", "run", "--rm", "--user", docker_user(), "--network", "none", "--mount",
         f"type=bind,src={work},dst=/build", "--entrypoint", tool, IMAGE, *args,
     ], text=True)
 
