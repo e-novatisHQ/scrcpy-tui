@@ -65,10 +65,7 @@ func TestPersistenceAndRecovery(t *testing.T) {
 	if w != "" || len(b.Config.Presets) != 4 || b.Config.LastDevice != "USB" {
 		t.Fatal(w, b)
 	}
-	st, _ := os.Stat(path)
-	if st.Mode().Perm() != 0600 {
-		t.Fatal(st.Mode())
-	}
+	assertPrivateConfig(t, path)
 	os.WriteFile(path, []byte("{"), 0600)
 	_, w = New(path)
 	if w == "" {
@@ -123,10 +120,7 @@ func TestRecoveryPreservesOriginalOnSave(t *testing.T) {
 			if string(data) != original {
 				t.Fatal("original changed")
 			}
-			st, _ := os.Stat(backups[0])
-			if st.Mode().Perm() != 0600 {
-				t.Fatal("backup permission")
-			}
+			assertPrivateConfig(t, backups[0])
 			a.Save()
 			backups, _ = filepath.Glob(path + ".recovery-*")
 			if len(backups) != 1 {
