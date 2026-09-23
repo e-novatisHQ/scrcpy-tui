@@ -41,7 +41,10 @@ func TestEntrypointReadOnlyCommands(t *testing.T) {
 	}
 }
 func TestEntrypointDiscoveryAndLaunch(t *testing.T) {
-	dir := t.TempDir()
+	dir := filepath.Join(t.TempDir(), "outils é avec espaces")
+	if err := os.Mkdir(dir, 0700); err != nil {
+		t.Fatal(err)
+	}
 	helper := testutil.Build(t, "helper")
 	for _, name := range []string{"adb", "scrcpy"} {
 		testutil.Copy(t, helper, dir, name)

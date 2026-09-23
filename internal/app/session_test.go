@@ -33,7 +33,7 @@ func waitSessionReady(t *testing.T, path string) int {
 
 func TestNativeSession(t *testing.T) {
 	ensureSessionTestConsole(t)
-	helper := testutil.Build(t, "session-helper")
+	helper := testutil.Build(t, "session helper é")
 	t.Run("exit", func(t *testing.T) {
 		if err := runSession(exec.Command(helper, "exit"), make(chan os.Signal)); err != nil {
 			t.Fatal(err)
