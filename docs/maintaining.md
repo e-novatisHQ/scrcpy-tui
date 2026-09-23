@@ -83,3 +83,35 @@ once it has passed. Preserve `quality`, `vulnerability`, `linux-amd64`,
 `linux-arm64`, `codeql`, signed commits, CODEOWNERS review and last-push approval.
 A Windows cross-build or hosted runner does not qualify a Windows 11 desktop or
 Android hardware. Do not tag/publish v0.5.0 before the delivery plan release gates.
+
+### Windows packaging
+
+`windows-release-check.yml` is shared by PR CI and tag releases. It builds a ZIP
+and per-user MSI on Linux, then compares the ZIP with a native Windows rebuild and
+runs installation, upgrade, reinstall, PATH preservation and uninstall on the
+Windows runner. The synthetic `0.0.1` upgrade fixture is a CI artifact only; it is
+never added to release assets. Tag releases include only the native-tested MSI,
+verify that its sibling ZIP matches the release ZIP, then checksum and attest it.
+
+The MSI toolchain uses `wixl`/`msitools` 0.106+repack-1 in a digest-pinned Debian
+container. `docker build -t scrcpy-tui-msi-toolchain:0.106 packaging/windows`
+explicitly provisions it; application startup never downloads tooling. The build
+script accepts a ZIP extraction directory containing the executable and notices.
+It installs to `%LOCALAPPDATA%\Programs\scrcpy-tui`, uses an HKCU keypath, adds only
+that directory to the user PATH, and preserves user profiles on uninstall.
+Windows Installer's standard environment actions notify Windows after completion.
+Existing terminals still need reopening.
+
+Deterministic boundary: EXE, ZIP and Debian archives are byte-reproducible. The
+unsigned MSI payload is the same ZIP executable, and product/component GUIDs are
+stable, but msitools writes package UUID and creation/save timestamps at build
+time. MSI bytes are therefore **not** claimed reproducible. The final, tested MSI
+receives its own SHA-256 and attestation. Authenticode timestamps would introduce
+another non-deterministic envelope; verify signed files rather than comparing
+signed bytes with an unsigned rebuild. The pinned container base and main tools
+are recorded; transitive APT dependencies are resolved at image-build time.
+
+The MSI script overrides wixl 0.106's Environment row with the Windows Installer
+`=-PATH` append/remove contract. Its value contains `[~]` so unrelated PATH entries
+are preserved. This is checked by native lifecycle tests, not merely XML parsing.
+See [the Environment table contract](https://learn.microsoft.com/en-us/windows/win32/msi/environment-table).

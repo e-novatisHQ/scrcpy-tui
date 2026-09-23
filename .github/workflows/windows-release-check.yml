@@ -4,7 +4,36 @@ on:
 permissions:
   contents: read
 jobs:
+  packages:
+    name: windows-packages
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: .go-version
+          cache: true
+      - name: Build Windows ZIP and MSI
+        run: |
+          make notices
+          python3 scripts/release.py --version "$(cat VERSION)" --target windows_amd64
+          unzip "dist/scrcpy-tui_$(cat VERSION)_windows_amd64.zip" -d msi-stage
+          docker build -t scrcpy-tui-msi-toolchain:0.106 packaging/windows
+          python3 scripts/build_msi.py --stage msi-stage --version "$(cat VERSION)" --output "dist/scrcpy-tui_$(cat VERSION)_windows_amd64.msi"
+          python3 scripts/build_msi.py --stage msi-stage --version 0.0.1 --test-fixture --output dist/upgrade-fixture.msi
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: windows-packages
+          path: |
+            dist/*.zip
+            dist/*.msi
+          retention-days: 7
+          if-no-files-found: error
   windows:
+    needs: packages
     name: windows-amd64
     runs-on: windows-2025
     timeout-minutes: 15
@@ -49,3 +78,22 @@ jobs:
           Expand-Archive "dist/$zip" -DestinationPath "$env:RUNNER_TEMP/zip-smoke"
           $actual = & "$env:RUNNER_TEMP/zip-smoke/scrcpy-tui.exe" --version
           if ($LASTEXITCODE -ne 0 -or $actual -ne $version) { throw 'ZIP smoke test failed' }
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: windows-packages
+          path: windows-packages
+      - name: Verify cross-host ZIP reproducibility and MSI lifecycle
+        shell: pwsh
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $zip = "scrcpy-tui_${version}_windows_amd64.zip"
+          if ((Get-FileHash "dist/$zip").Hash -ne (Get-FileHash "windows-packages/$zip").Hash) { throw 'Linux/Windows ZIP builds differ' }
+          ./scripts/test_msi.ps1 -PackageDirectory windows-packages
+      - name: Preserve installer diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: msi-test-logs
+          path: ${{ runner.temp }}/msi-logs/*.log
+          retention-days: 7
+          if-no-files-found: ignore
